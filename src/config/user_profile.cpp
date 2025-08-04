@@ -83,6 +83,29 @@ std::optional<bool> UserProfile::get_blinded_msgreqs() const {
     return std::nullopt;
 }
 
+std::optional<Pro> UserProfile::get_pro_data() const {
+    std::optional<Pro> result = {};
+    if (const config::dict* P = data["P"].dict(); P) {
+        Pro pro = {};
+        if (pro.load(*P))
+            result = std::move(pro);
+    }
+    return result;
+}
+
+void UserProfile::set_pro_data(Pro const &pro) {
+    auto root = data["P"];
+    root["r"] = pro.rotating_privkey;
+
+    const Proof& pro_proof = pro.proof;
+    auto proof_dict = root["p"];
+    proof_dict["v"] = pro_proof.version;
+    proof_dict["g"] = pro_proof.gen_index_hash;
+    proof_dict["r"] = pro_proof.rotating_pubkey;
+    proof_dict["e"] = pro_proof.expiry_unix_ts.time_since_epoch().count();
+    proof_dict["s"] = pro_proof.sig;
+}
+
 extern "C" {
 
 using namespace session;
