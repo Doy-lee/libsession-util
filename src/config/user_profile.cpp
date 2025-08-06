@@ -83,21 +83,21 @@ std::optional<bool> UserProfile::get_blinded_msgreqs() const {
     return std::nullopt;
 }
 
-std::optional<Pro> UserProfile::get_pro_data() const {
-    std::optional<Pro> result = {};
+std::optional<ProConfig> UserProfile::get_pro_data() const {
+    std::optional<ProConfig> result = {};
     if (const config::dict* P = data["P"].dict(); P) {
-        Pro pro = {};
+        ProConfig pro = {};
         if (pro.load(*P))
             result = std::move(pro);
     }
     return result;
 }
 
-void UserProfile::set_pro_data(Pro const &pro) {
+void UserProfile::set_pro_data(ProConfig const &pro) {
     auto root = data["P"];
     root["r"] = pro.rotating_privkey;
 
-    const Proof& pro_proof = pro.proof;
+    const ProProof& pro_proof = pro.proof;
     auto proof_dict = root["p"];
     proof_dict["v"] = pro_proof.version;
     proof_dict["g"] = pro_proof.gen_index_hash;
