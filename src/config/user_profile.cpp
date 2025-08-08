@@ -5,6 +5,8 @@
 #include "internal.hpp"
 #include "session/config/contacts.hpp"
 #include "session/config/error.h"
+#include "session/config/pro.h"
+#include "session/config/pro.hpp"
 #include "session/config/user_profile.hpp"
 #include "session/export.h"
 #include "session/types.hpp"
@@ -83,7 +85,7 @@ std::optional<bool> UserProfile::get_blinded_msgreqs() const {
     return std::nullopt;
 }
 
-std::optional<ProConfig> UserProfile::get_pro_data() const {
+std::optional<ProConfig> UserProfile::get_pro_config() const {
     std::optional<ProConfig> result = {};
     if (const config::dict* P = data["P"].dict(); P) {
         ProConfig pro = {};
@@ -93,7 +95,7 @@ std::optional<ProConfig> UserProfile::get_pro_data() const {
     return result;
 }
 
-void UserProfile::set_pro_data(ProConfig const &pro) {
+void UserProfile::set_pro_config(ProConfig const &pro) {
     auto root = data["P"];
     root["r"] = pro.rotating_privkey;
 
@@ -192,5 +194,44 @@ LIBSESSION_C_API void user_profile_set_blinded_msgreqs(config_object* conf, int 
         val = static_cast<bool>(enabled);
     unbox<UserProfile>(conf)->set_blinded_msgreqs(std::move(val));
 }
+
+LIBSESSION_C_API bool user_profile_get_pro_data(const config_object* conf, pro_pro_config *pro) {
+    if (auto val = unbox<UserProfile>(conf)->get_pro_config(); val) {
+        static_assert(sizeof pro->proof.gen_index_hash == sizeof(val->proof.gen_index_hash));
+        static_assert(sizeof pro->proof.rotating_pubkey == sizeof(val->proof.rotating_pubkey));
+        static_assert(sizeof pro->proof.sig == sizeof(val->proof.sig));
+        pro->proof.version = val->proof.version;
+        std::memcpy(
+                pro->proof.gen_index_hash,
+                val->proof.gen_index_hash.data(),
+                val->proof.gen_index_hash.size());
+        std::memcpy(
+                pro->proof.rotating_pubkey,
+                val->proof.rotating_pubkey.data(),
+                val->proof.rotating_pubkey.size());
+        pro->proof.expiry_unix_ts = val->proof.expiry_unix_ts.time_since_epoch().count();
+        std::memcpy(pro->proof.sig, val->proof.sig.data(), val->proof.sig.size());
+        return true;
+    }
+    return false;
+}
+
+LIBSESSION_C_API void user_profile_set_pro_data(config_object* conf, const pro_pro_config *pro) {
+    ProConfig val = {};
+    val.proof.version = pro->proof.version;
+    std::memcpy(
+            val.proof.gen_index_hash.data(),
+            pro->proof.gen_index_hash,
+            val.proof.gen_index_hash.size());
+    std::memcpy(
+            val.proof.rotating_pubkey.data(),
+            pro->proof.rotating_pubkey,
+            val.proof.rotating_pubkey.size());
+    val.proof.expiry_unix_ts =
+            std::chrono::sys_seconds(std::chrono::seconds(pro->proof.expiry_unix_ts));
+    std::memcpy(val.proof.sig.data(), pro->proof.sig, val.proof.sig.size());
+    unbox<UserProfile>(conf)->set_pro_config(val);
+}
+
 
 }  // extern "C"

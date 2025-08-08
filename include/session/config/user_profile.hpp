@@ -209,7 +209,7 @@ class UserProfile : public ConfigBase {
     /// user does not have any entitlement to Session Pro data.
     ///
     /// Inputs: None
-    std::optional<ProConfig> get_pro_data() const;
+    std::optional<ProConfig> get_pro_config() const;
 
     /// API: user_profile/UserProfile::set_pro_data
     ///
@@ -220,7 +220,7 @@ class UserProfile : public ConfigBase {
     /// Inputs:
     /// - `pro` -- The Session Pro components to assign to the current user profile. This will
     ///   overwrite any existing Session Pro data if it exists. No verification of `pro` is done.
-    void set_pro_data(const ProConfig& pro);
+    void set_pro_config(const ProConfig& pro);
 };
 
 }  // namespace session::config
