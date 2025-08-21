@@ -195,7 +195,7 @@ LIBSESSION_C_API void user_profile_set_blinded_msgreqs(config_object* conf, int 
     unbox<UserProfile>(conf)->set_blinded_msgreqs(std::move(val));
 }
 
-LIBSESSION_C_API bool user_profile_get_pro_data(const config_object* conf, pro_pro_config* pro) {
+LIBSESSION_C_API bool user_profile_get_pro_config(const config_object* conf, pro_pro_config* pro) {
     if (auto val = unbox<UserProfile>(conf)->get_pro_config(); val) {
         static_assert(sizeof pro->proof.gen_index_hash == sizeof(val->proof.gen_index_hash));
         static_assert(sizeof pro->proof.rotating_pubkey == sizeof(val->proof.rotating_pubkey));
@@ -216,7 +216,7 @@ LIBSESSION_C_API bool user_profile_get_pro_data(const config_object* conf, pro_p
     return false;
 }
 
-LIBSESSION_C_API void user_profile_set_pro_data(config_object* conf, const pro_pro_config* pro) {
+LIBSESSION_C_API void user_profile_set_pro_config(config_object* conf, const pro_pro_config* pro) {
     ProConfig val = {};
     val.proof.version = pro->proof.version;
     std::memcpy(
