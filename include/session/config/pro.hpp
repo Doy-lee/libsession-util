@@ -6,9 +6,9 @@
 #include <cstdint>
 #include <session/config.hpp>
 #include <session/config/base.hpp>
+#include <session/pro_backend.hpp>
 #include <session/sodium_array.hpp>
 #include <session/types.hpp>
-#include <session/pro_backend.hpp>
 
 namespace session::config {
 
