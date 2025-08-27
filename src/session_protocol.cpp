@@ -784,19 +784,19 @@ session_protocol_decrypted_envelope session_protocol_decrypt_envelope(
         const DecryptedPro& pro = *result_cpp.pro;
         result.pro_status = static_cast<PRO_STATUS>(pro.status);
         result.pro_proof.version = pro.proof.version;
-        result.pro_proof.expiry_unix_ts =
+        result.pro_proof.expiry_unix_ts_s =
                 static_cast<uint64_t>(pro.proof.expiry_unix_ts.time_since_epoch().count());
         result.pro_features = pro.features;
 
         std::memcpy(
-                result.pro_proof.gen_index_hash,
+                result.pro_proof.gen_index_hash.data,
                 pro.proof.gen_index_hash.data(),
                 sizeof(result.pro_proof.gen_index_hash));
         std::memcpy(
-                result.pro_proof.rotating_pubkey,
+                result.pro_proof.rotating_pubkey.data,
                 pro.proof.rotating_pubkey.data(),
                 sizeof(result.pro_proof.rotating_pubkey));
-        std::memcpy(result.pro_proof.sig, pro.proof.sig.data(), sizeof(pro.proof.sig));
+        std::memcpy(result.pro_proof.sig.data, pro.proof.sig.data(), sizeof(pro.proof.sig));
     }
 
     // Since we support multiple keys, if some of the keys failed but one of them succeeded, we will

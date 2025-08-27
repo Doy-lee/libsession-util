@@ -1,6 +1,5 @@
 #pragma once
 
-#include <session/config/pro.hpp>
 #include <session/types.hpp>
 
 /// Helper functions to construct payloads to communicate with the Session Pro Backend. The data
@@ -126,6 +125,9 @@ struct AddProPaymentRequest {
 /// is the raw parse result that can then be converted into the config::ProProof or equivalent
 /// structure.
 struct AddProPaymentOrGetProProofResponse : public ResponseHeader {
+    /// Version of the proof
+    uint8_t version;
+
     /// Unix timestamp (seconds) of when the proof expires
     std::chrono::sys_seconds expiry_unix_ts;
 
@@ -271,6 +273,26 @@ struct GetProPaymentsRequest {
     /// Page number for paginated API requests
     std::uint32_t page;
 
+    /// API: pro/AddProPaymentRequest::build_sigs
+    ///
+    /// Builds the master and rotating signatures using the provided private keys and payment token
+    /// hash. Throws if the keys (32-byte or 64-byte libsodium format) or 32-byte payment token hash
+    /// are passed with an incorrect size. Using 64-byte libsodium keys is more efficient.
+    ///
+    /// Inputs:
+    /// - `request_version` -- Version of the request to build a hash for
+    /// - `master_privkey` -- 64-byte libsodium style or 32 byte Ed25519 master private key
+    /// - `unix_ts` -- Unix timestamp (seconds) for the request.
+    /// - `page` -- The page in the paginated list of historical payments to request
+    ///
+    /// Outputs:
+    /// - `array_uc64` - the 64-byte signature
+    static array_uc64 build_sig(
+            uint8_t version,
+            std::span<const uint8_t> master_privkey,
+            std::chrono::sys_seconds unix_ts,
+            uint32_t page);
+
     /// API: pro/GetProProofRequest::to_json
     ///
     /// Serializes the request to a JSON string.
@@ -320,4 +342,6 @@ struct GetProPaymentsResponse : public ResponseHeader {
     /// - `bool` - True if parsing succeeds, false otherwise. Errors are stored in `errors`.
     bool parse(std::string_view json);
 };
+
+void make_blake2b32_hasher(struct crypto_generichash_blake2b_state *hasher);
 }  // namespace session::pro_backend

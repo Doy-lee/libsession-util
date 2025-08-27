@@ -3,6 +3,7 @@
 #include <sodium/crypto_sign_ed25519.h>
 
 #include <session/config/pro.hpp>
+#include <session/pro_backend.hpp>
 
 #include "internal.hpp"
 
@@ -12,11 +13,12 @@ session::array_uc32 proof_hash_internal(
         std::span<const std::uint8_t> gen_index_hash,
         std::span<const std::uint8_t> rotating_pubkey,
         std::uint64_t expiry_unix_ts) {
-    // This must match the hashing routine at
-    // https://github.com/Doy-lee/session-pro-backend/blob/9417e00adbff3bf608b7ae831f87045bdab06232/backend.py#L545-L558
+    // This must match the hashing routine at:
+    //   https://github.com/Doy-lee/session-pro-backend/blob/9417e00adbff3bf608b7ae831f87045bdab06232/backend.py#L545-L558
     session::array_uc32 result = {};
-    crypto_generichash_blake2b_state state;
-    crypto_generichash_blake2b_init(&state, /*key*/ nullptr, 0, result.max_size());
+
+    crypto_generichash_blake2b_state state = {};
+    session::pro_backend::make_blake2b32_hasher(&state);
     crypto_generichash_blake2b_update(&state, &version, sizeof(version));
     crypto_generichash_blake2b_update(&state, gen_index_hash.data(), gen_index_hash.size());
     crypto_generichash_blake2b_update(&state, rotating_pubkey.data(), rotating_pubkey.size());
@@ -225,9 +227,9 @@ LIBSESSION_C_API bytes32 pro_proof_hash(pro_proof const* proof) {
     if (proof) {
         session::array_uc32 hash = proof_hash_internal(
                 proof->version,
-                proof->gen_index_hash,
-                proof->rotating_pubkey,
-                proof->expiry_unix_ts);
+                proof->gen_index_hash.data,
+                proof->rotating_pubkey.data,
+                proof->expiry_unix_ts_s);
         std::memcpy(result.data, hash.data(), hash.size());
     }
     return result;
@@ -239,8 +241,11 @@ LIBSESSION_C_API bool pro_proof_verify_signature(
         return false;
     auto verify_pubkey_span = std::span<const std::uint8_t>(verify_pubkey, verify_pubkey_len);
     session::array_uc32 hash = proof_hash_internal(
-            proof->version, proof->gen_index_hash, proof->rotating_pubkey, proof->expiry_unix_ts);
-    bool result = proof_verify_signature_internal(hash, proof->sig, verify_pubkey_span);
+            proof->version,
+            proof->gen_index_hash.data,
+            proof->rotating_pubkey.data,
+            proof->expiry_unix_ts_s);
+    bool result = proof_verify_signature_internal(hash, proof->sig.data, verify_pubkey_span);
     return result;
 }
 
@@ -252,12 +257,12 @@ LIBSESSION_C_API bool pro_proof_verify_message(
         size_t msg_len) {
     std::span<const uint8_t> sig_span = {sig, sig_len};
     std::span<const uint8_t> msg_span = {msg, msg_len};
-    bool result = proof_verify_message_internal(proof->rotating_pubkey, sig_span, msg_span);
+    bool result = proof_verify_message_internal(proof->rotating_pubkey.data, sig_span, msg_span);
     return result;
 }
 
 LIBSESSION_C_API bool pro_proof_is_active(pro_proof const* proof, uint64_t unix_ts_s) {
-    bool result = proof && proof_is_active_internal(proof->expiry_unix_ts, unix_ts_s);
+    bool result = proof && proof_is_active_internal(proof->expiry_unix_ts_s, unix_ts_s);
     return result;
 }
 
@@ -292,12 +297,12 @@ LIBSESSION_C_API bool pro_config_verify_signature(
         pro_pro_config const* pro, uint8_t const* verify_pubkey, size_t verify_pubkey_len) {
     auto verify_pubkey_span = std::span<const std::uint8_t>(verify_pubkey, verify_pubkey_len);
     bool result = config_verify_signature_internal(
-            pro->rotating_privkey,
+            pro->rotating_privkey.data,
             verify_pubkey_span,
             pro->proof.version,
-            pro->proof.gen_index_hash,
-            pro->proof.rotating_pubkey,
-            pro->proof.expiry_unix_ts,
-            pro->proof.sig);
+            pro->proof.gen_index_hash.data,
+            pro->proof.rotating_pubkey.data,
+            pro->proof.expiry_unix_ts_s,
+            pro->proof.sig.data);
     return result;
 }

@@ -26,14 +26,14 @@ typedef struct pro_signed_message {
 
 typedef struct pro_proof {
     uint8_t version;
-    uint8_t gen_index_hash[32];
-    uint8_t rotating_pubkey[32];
-    uint64_t expiry_unix_ts;
-    uint8_t sig[64];
+    bytes32 gen_index_hash;
+    bytes32 rotating_pubkey;
+    uint64_t expiry_unix_ts_s;
+    bytes64 sig;
 } pro_proof;
 
 typedef struct pro_config {
-    uint8_t rotating_privkey[64];
+    bytes64 rotating_privkey;
     pro_proof proof;
 } pro_pro_config;
 
@@ -92,7 +92,7 @@ LIBSESSION_EXPORT bool pro_proof_verify_message(
 /// API: pro/pro_proof_is_active
 ///
 /// Check if the Pro proof is currently entitled to Pro given the `unix_ts` with respect to the
-/// proof's `expiry_unix_ts`
+/// proof's `expiry_unix_ts_s`
 ///
 /// Inputs:
 /// - `proof` -- Proof to verify
@@ -119,7 +119,7 @@ LIBSESSION_EXPORT bool pro_proof_is_active(pro_proof const* proof, uint64_t unix
 ///   they are the original signatory of the proof.
 /// - `verify_pubkey_len` -- Length of the `verify_pubkey` should be 32 bytes
 ///   they are the original signatory of the proof.
-/// - `unix_ts` -- Unix timestamp in seconds to compared against the embedded `expiry_unix_ts`
+/// - `unix_ts` -- Unix timestamp in seconds to compared against the embedded `expiry_unix_ts_s`
 ///   to determine if the proof has expired or not
 /// - `signed_msg` -- Optionally set the payload to the message with the signature to verify if
 ///   the embedded `rotating_pubkey` in the proof signed the given message.

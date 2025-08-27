@@ -22,6 +22,10 @@ enum class ProStatus {
     Expired = PRO_STATUS_EXPIRED,  // Proof is verified; has expired
 };
 
+/// Wrapper struct holding a message and the signature that signed said message. It can be passed
+/// into the `ProProof` to verify if the rotating public key embedded into the proof is the
+/// signatory of this message. This is primarily used to verify that a message is entitled to use
+/// Pro features (from the embedded proof) in the message.
 struct ProSignedMessage {
     std::span<const uint8_t> sig;
     std::span<const uint8_t> msg;
