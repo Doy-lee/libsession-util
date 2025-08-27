@@ -1,6 +1,7 @@
 #include <session/config/pro.h>
 #include <sodium/crypto_generichash_blake2b.h>
 #include <sodium/crypto_sign_ed25519.h>
+#include <session/pro_backend.h>
 
 #include <session/config/pro.hpp>
 #include <session/pro_backend.hpp>
@@ -154,6 +155,15 @@ array_uc32 ProProof::hash() const {
     return result;
 }
 
+void ProProof::from_pro_backend_response(
+        const pro_backend::AddProPaymentOrGetProProofResponse& response) {
+    version = response.version;
+    gen_index_hash = response.gen_index_hash;
+    rotating_pubkey = response.rotating_pkey;
+    expiry_unix_ts = response.expiry_unix_ts;
+    sig = response.sig;
+}
+
 bool ProProof::load(const dict& root) {
     std::optional<uint8_t> version = maybe_int(root, "@");
     std::optional<std::vector<unsigned char>> maybe_gen_index_hash = maybe_vector(root, "g");
@@ -290,6 +300,17 @@ LIBSESSION_C_API PRO_STATUS pro_proof_status(
     // Check if the proof has expired
     if (result == PRO_STATUS_VALID && !pro_proof_is_active(proof, unix_ts_s))
         result = PRO_STATUS_EXPIRED;
+    return result;
+}
+
+LIBSESSION_EXPORT pro_proof pro_proof_from_pro_backend_response(
+        session_pro_backend_add_pro_payment_or_get_pro_proof_response* response) {
+    pro_proof result = {};
+    result.version = response->version;
+    result.gen_index_hash = response->gen_index_hash;
+    result.rotating_pubkey = response->rotating_pkey;
+    result.expiry_unix_ts_s = response->expiry_unix_ts_s;
+    result.sig = response->sig;
     return result;
 }
 

@@ -135,6 +135,16 @@ LIBSESSION_EXPORT PRO_STATUS pro_proof_status(
         uint64_t unix_ts_s,
         const pro_signed_message* signed_msg);
 
+/// API: pro/pro_proof_from_pro_backend_response
+///
+/// Construct a Pro proof from the response payload that the Session Pro Backend produces when
+/// succesfully registering a new subscription/authorising a new key for the proof.
+///
+/// Inputs:
+/// - `response` -- Response from the Pro Backend containing the proof information
+LIBSESSION_EXPORT pro_proof pro_proof_from_pro_backend_response(
+        struct session_pro_backend_add_pro_payment_or_get_pro_proof_response* response);
+
 /// API: pro/pro_verify
 ///
 /// Verify the proof was signed by the `verify_pubkey` and that the `rotating_privkey` in the `pro`

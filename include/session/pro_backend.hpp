@@ -1,6 +1,9 @@
 #pragma once
 
 #include <session/types.hpp>
+#include <span>
+#include <string>
+#include <chrono>
 
 /// Helper functions to construct payloads to communicate with the Session Pro Backend. The data
 /// structures here are largely bindings to the endpoints exposed on the Session Pro Backend:
@@ -20,8 +23,9 @@
 ///    otherwise an error is returned and can be read from the `ResponseHeader` after parsing the
 ///    raw response.
 ///
-/// 2. Attach the proof to their messages. Libsession has helper functions to embed the proof into
-///    their messages via the helper functions in the Session Protocol header file.
+/// 2. Attach the `ProProof` constructed from (1) into their messages. Libsession has helper
+///    functions to embed the proof into their messages via the helper functions in the Session
+///    Protocol header file.
 ///
 /// 3. Periodically poll the global revocation list which overrides the validity of current
 ///    circulating proofs. This is done by constructing the request via
@@ -109,7 +113,6 @@ struct AddProPaymentRequest {
     /// - `master_privkey` -- 64-byte libsodium style or 32 byte Ed25519 master private key
     /// - `rotating_privkey` -- 64-byte libsodium style or 32 byte Ed25519 rotating private key
     /// - `payment_token_hash` -- 32-byte hash of the payment token.
-    /// - `unix_ts` -- Unix timestamp (seconds) for the request.
     ///
     /// Outputs:
     /// - `MasterRotatingSignatures` - Struct containing the 64-byte master and rotating signatures.
@@ -117,8 +120,7 @@ struct AddProPaymentRequest {
             std::uint8_t request_version,
             std::span<const uint8_t> master_privkey,
             std::span<const uint8_t> rotating_privkey,
-            std::span<const uint8_t> payment_token_hash,
-            std::chrono::sys_seconds unix_ts);
+            std::span<const uint8_t> payment_token_hash);
 };
 
 /// The generated proof from the Session Pro backend that has been parsed from JSON. This structure

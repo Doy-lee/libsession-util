@@ -8,6 +8,7 @@
 #include <session/config/base.hpp>
 #include <session/sodium_array.hpp>
 #include <session/types.hpp>
+#include <session/pro_backend.hpp>
 
 namespace session::config {
 
@@ -134,6 +135,15 @@ class ProProof {
     ///
     /// Create a 32-byte hash from the proof. This hash is the payload that is signed in the proof.
     array_uc32 hash() const;
+
+    /// API: pro/Proof::from_pro_backend_response
+    ///
+    /// Construct a Pro proof from the response payload that the Session Pro Backend produces when
+    /// succesfully registering a new subscription/authorising a new key for the proof.
+    ///
+    /// Inputs:
+    /// - `response` -- Response from the Pro Backend containing the proof information
+    void from_pro_backend_response(const pro_backend::AddProPaymentOrGetProProofResponse& response);
 
     bool load(const dict& root);
 };

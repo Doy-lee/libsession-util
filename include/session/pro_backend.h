@@ -15,7 +15,7 @@ enum {
     SESSION_PRO_BACKEND_STATUS_GENERIC_ERROR = 1,
 };
 
-typedef struct {
+typedef struct session_pro_backend_response_header {
     uint32_t status;
     /// Array of error messages (NULL if no errors), with errors_count elements
     string8* errors;
@@ -28,7 +28,7 @@ typedef struct {
     string8 json;
 } session_pro_backend_to_json;
 
-typedef struct {
+typedef struct session_pro_backend_master_rotating_signatures {
     bool success;
     char error[256];
     size_t error_count;
@@ -36,14 +36,14 @@ typedef struct {
     bytes64 rotating_sig;
 } session_pro_backend_master_rotating_signatures;
 
-typedef struct {
+typedef struct session_pro_backend_signature {
     bool success;
     char error[256];
     size_t error_count;
     bytes64 sig;
 } session_pro_backend_signature;
 
-typedef struct {
+typedef struct session_pro_backend_add_pro_payment_request {
     uint8_t version;
     bytes32 master_pkey;
     bytes32 rotating_pkey;
@@ -52,7 +52,7 @@ typedef struct {
     bytes64 rotating_sig;
 } session_pro_backend_add_pro_payment_request;
 
-typedef struct {
+typedef struct session_pro_backend_get_pro_proof_request {
     uint8_t version;
     bytes32 master_pkey;
     bytes32 rotating_pkey;
@@ -61,7 +61,7 @@ typedef struct {
     bytes64 rotating_sig;
 } session_pro_backend_get_pro_proof_request;
 
-typedef struct {
+typedef struct session_pro_backend_add_pro_payment_or_get_pro_proof_response {
     session_pro_backend_response_header header;
     uint8_t version;
     uint64_t expiry_unix_ts_s;
@@ -70,17 +70,17 @@ typedef struct {
     bytes64 sig;
 } session_pro_backend_add_pro_payment_or_get_pro_proof_response;
 
-typedef struct {
+typedef struct session_pro_backend_get_pro_revocations_request {
     uint8_t version;
     uint32_t ticket;
 } session_pro_backend_get_pro_revocations_request;
 
-typedef struct {
+typedef struct session_pro_backend_pro_revocation_item {
     bytes32 gen_index_hash;
     uint64_t expiry_unix_ts_s;
 } session_pro_backend_pro_revocation_item;
 
-typedef struct {
+typedef struct session_pro_backend_get_pro_revocations_response {
     session_pro_backend_response_header header;
     uint32_t ticket;
     /// Array of items, with items_count elements
@@ -88,7 +88,7 @@ typedef struct {
     size_t items_count;
 } session_pro_backend_get_pro_revocations_response;
 
-typedef struct {
+typedef struct session_pro_backend_get_pro_payments_request {
     uint8_t version;
     bytes32 master_pkey;
     bytes64 master_sig;
@@ -96,7 +96,7 @@ typedef struct {
     uint32_t page;
 } session_pro_backend_get_pro_payments_request;
 
-typedef struct {
+typedef struct session_pro_backend_pro_payment_item {
     uint64_t activation_unix_ts_s;
     uint64_t archive_unix_ts_s;
     uint64_t creation_unix_ts_s;
@@ -104,7 +104,7 @@ typedef struct {
     bytes32 payment_token_hash;
 } session_pro_backend_pro_payment_item;
 
-typedef struct {
+typedef struct session_pro_backend_get_pro_payments_response {
     session_pro_backend_response_header header;
     /// Array of payment items, with items_count elements
     session_pro_backend_pro_payment_item* items;
@@ -127,7 +127,6 @@ typedef struct {
 /// - `rotating_privkey_len` -- Length of rotating_privkey.
 /// - `payment_token_hash` -- 32-byte hash of the payment token.
 /// - `payment_token_hash_len` -- Length of payment_token_hash.
-/// - `unix_ts_s` -- Unix timestamp (seconds) for the request.
 ///
 /// Outputs:
 /// - `success` - True if signatures are built successfully, false otherwise.
@@ -144,8 +143,7 @@ session_pro_backend_add_pro_payment_request_build_sigs(
         const uint8_t* rotating_privkey,
         size_t rotating_privkey_len,
         const uint8_t* payment_token_hash,
-        size_t payment_token_hash_len,
-        uint64_t unix_ts_s);
+        size_t payment_token_hash_len);
 
 /// API: session_pro_backend/get_pro_proof_request_build_sigs
 ///
