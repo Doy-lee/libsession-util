@@ -361,8 +361,7 @@ TEST_CASE("Session Pro Backend C API", "[session_pro_backend]") {
         // Here we also create the CPP version, we will run the conversion functions into pro proofs
         // (both C and CPP variants) and then compare the two structures to make sure the conversion
         // functions are sound.
-        AddProPaymentOrGetProProofResponse result_cpp = {};
-        REQUIRE(result_cpp.parse(json));
+        auto result_cpp = AddProPaymentOrGetProProofResponse::parse(json);
 
         pro_proof proof_c = pro_proof_from_pro_backend_response(&result);
         session::config::ProProof proof_cpp = {};
