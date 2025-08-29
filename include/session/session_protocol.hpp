@@ -75,10 +75,6 @@ struct Destination {
 
     // The timestamp to assign to the message envelope
     std::chrono::milliseconds sent_timestamp_ms;
-    //
-    // When type => (CommunityInbox || SyncMessage || Contact): set to the recipient's Session
-    // public key
-    array_uc33 recipient_pubkey;
 
     // When type => (CommunityInbox || SyncMessage || Contact): set to the recipient's Session
     // public key
