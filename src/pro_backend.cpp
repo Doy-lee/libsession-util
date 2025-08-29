@@ -188,7 +188,8 @@ MasterRotatingSignatures AddProPaymentRequest::build_sigs(
     return result;
 }
 
-AddProPaymentOrGetProProofResponse AddProPaymentOrGetProProofResponse::parse(std::string_view json) {
+AddProPaymentOrGetProProofResponse AddProPaymentOrGetProProofResponse::parse(
+        std::string_view json) {
     // Parse basics
     AddProPaymentOrGetProProofResponse result = {};
     nlohmann::json j = json_parse(json, result.errors);
@@ -212,8 +213,10 @@ AddProPaymentOrGetProProofResponse AddProPaymentOrGetProProofResponse::parse(std
     result.version = json_require<uint8_t>(result_obj, "version", result.errors);
     auto expiry_unix_ts_s = json_require<uint64_t>(result_obj, "expiry_unix_ts_s", result.errors);
     result.expiry_unix_ts = std::chrono::sys_seconds(std::chrono::seconds(expiry_unix_ts_s));
-    json_require_fixed_bytes_from_hex(result_obj, "gen_index_hash", result.errors, result.gen_index_hash);
-    json_require_fixed_bytes_from_hex(result_obj, "rotating_pkey", result.errors, result.rotating_pkey);
+    json_require_fixed_bytes_from_hex(
+            result_obj, "gen_index_hash", result.errors, result.gen_index_hash);
+    json_require_fixed_bytes_from_hex(
+            result_obj, "rotating_pkey", result.errors, result.rotating_pkey);
     json_require_fixed_bytes_from_hex(result_obj, "sig", result.errors, result.sig);
     return result;
 }
@@ -325,11 +328,8 @@ GetProRevocationsResponse GetProRevocationsResponse::parse(std::string_view json
     for (size_t index = 0; index < array.size(); index++) {
         const auto& it = array[index];
         if (!it.is_object()) {
-            result.errors.push_back(
-                    fmt::format(
-                            "Aborting parse, 'items[{}]' was not an object: {}",
-                            index,
-                            it.dump(1)));
+            result.errors.push_back(fmt::format(
+                    "Aborting parse, 'items[{}]' was not an object: {}", index, it.dump(1)));
             break;
         }
 
@@ -434,11 +434,8 @@ GetProPaymentsResponse GetProPaymentsResponse::parse(std::string_view json) {
     for (size_t index = 0; index < array.size(); index++) {
         const auto& it = array[index];
         if (!it.is_object()) {
-            result.errors.push_back(
-                    fmt::format(
-                            "Aborting parse, 'items[{}]' was not an object: {}",
-                            index,
-                            it.dump(1)));
+            result.errors.push_back(fmt::format(
+                    "Aborting parse, 'items[{}]' was not an object: {}", index, it.dump(1)));
             break;
         }
 

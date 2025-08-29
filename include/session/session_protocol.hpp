@@ -163,7 +163,35 @@ struct DecryptEnvelopeKey {
     std::span<std::span<const uint8_t>> ed25519_privkeys;
 };
 
-/// API: session_protocol/get_pro_features_for_msg
+struct ProFeaturesForMsg {
+    bool success;
+    std::string_view error;
+    PRO_FEATURES features;
+    size_t codepoint_count;
+};
+
+/// API: session_protocol/get_pro_features_for_utf8
+///
+/// Determine the Pro features that are used in a given conversation message.
+///
+/// Inputs:
+/// - `msg_size` -- the size of the message in UTF8 code units to determine if the message requires
+///   access to the higher character limit available in Session Pro
+/// - `flags` -- extra pro features that are known by clients that they wish to be activated on
+///   this message
+///
+/// Outputs:
+/// - `success` -- True if the message was evaluated successfully for PRO features false otherwise.
+///   When false, all fields except for `error` should be ignored from the result object.
+/// - `error` -- If `success` is false, this is populated with an error code describing the error,
+//    otherwise it's empty.
+/// - `features` -- Session Pro feature flags suitable for writing directly into the protobuf
+///   `ProMessage` in `Content`
+/// - `codepoint_count` -- Counts the number of unicode codepoints that were in the message.
+ProFeaturesForMsg get_pro_features_for_utf8(
+        char const* utf8, size_t utf8_size, PRO_EXTRA_FEATURES flags);
+
+/// API: session_protocol/get_pro_features_for_utf16
 ///
 /// Determine the Pro features that are used in a given conversation message.
 ///
@@ -174,9 +202,15 @@ struct DecryptEnvelopeKey {
 ///   this message
 ///
 /// Outputs:
-/// - Session Pro feature flags suitable for writing directly into the protobuf `ProMessage` in
-///   `Content`
-PRO_FEATURES get_pro_features_for_msg(size_t msg_size, PRO_EXTRA_FEATURES flags);
+/// - `success` -- True if the message was evaluated successfully for PRO features false otherwise.
+///   When false, all fields except for `error` should be ignored from the result object.
+/// - `error` -- If `success` is false, this is populated with an error code describing the error,
+//    otherwise it's empty.
+/// - `features` -- Session Pro feature flags suitable for writing directly into the protobuf
+///   `ProMessage` in `Content`
+/// - `codepoint_count` -- Counts the number of unicode codepoints that were in the message.
+ProFeaturesForMsg get_pro_features_for_utf16(
+        char16_t const* utf16, size_t utf8_size, PRO_EXTRA_FEATURES flags);
 
 /// API: session_protocol/encrypt_for_1o1
 ///
