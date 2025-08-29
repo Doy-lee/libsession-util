@@ -48,7 +48,7 @@ typedef struct pro_config {
 ///
 /// Outputs:
 /// - `bytes32` -- The 32 byte hash calculated from the proof
-LIBSESSION_EXPORT bytes32 pro_proof_hash(pro_proof const* proof);
+LIBSESSION_EXPORT bytes32 pro_proof_hash(pro_proof const* proof) NON_NULL_ARG(1);
 
 /// API: pro/pro_proof_verify_signature
 ///
@@ -64,7 +64,8 @@ LIBSESSION_EXPORT bytes32 pro_proof_hash(pro_proof const* proof);
 /// Outputs:
 /// - `bool` -- True if verified, false otherwise
 LIBSESSION_EXPORT bool pro_proof_verify_signature(
-        pro_proof const* proof, uint8_t const* verify_pubkey, size_t verify_pubkey_len);
+        pro_proof const* proof, uint8_t const* verify_pubkey, size_t verify_pubkey_len)
+        NON_NULL_ARG(1, 2);
 
 /// API: pro/pro_proof_verify_message
 ///
@@ -87,7 +88,7 @@ LIBSESSION_EXPORT bool pro_proof_verify_message(
         uint8_t const* sig,
         size_t sig_len,
         uint8_t const* msg,
-        size_t msg_len);
+        size_t msg_len) NON_NULL_ARG(1, 2, 4);
 
 /// API: pro/pro_proof_is_active
 ///
@@ -100,7 +101,8 @@ LIBSESSION_EXPORT bool pro_proof_verify_message(
 ///
 /// Outputs:
 /// - `bool` -- True if expired, false otherwise
-LIBSESSION_EXPORT bool pro_proof_is_active(pro_proof const* proof, uint64_t unix_ts_s);
+LIBSESSION_EXPORT bool pro_proof_is_active(pro_proof const* proof, uint64_t unix_ts_s)
+        NON_NULL_ARG(1);
 
 /// API: pro/pro_proof_status
 ///
@@ -133,7 +135,8 @@ LIBSESSION_EXPORT PRO_STATUS pro_proof_status(
         const uint8_t* verify_pubkey,
         size_t verify_pubkey_len,
         uint64_t unix_ts_s,
-        const pro_signed_message* signed_msg);
+        OPTIONAL const pro_signed_message* signed_msg)
+        NON_NULL_ARG(1, 2);
 
 /// API: pro/pro_proof_from_pro_backend_response
 ///
@@ -143,7 +146,8 @@ LIBSESSION_EXPORT PRO_STATUS pro_proof_status(
 /// Inputs:
 /// - `response` -- Response from the Pro Backend containing the proof information
 LIBSESSION_EXPORT pro_proof pro_proof_from_pro_backend_response(
-        struct session_pro_backend_add_pro_payment_or_get_pro_proof_response* response);
+        struct session_pro_backend_add_pro_payment_or_get_pro_proof_response* response)
+        NON_NULL_ARG(1);
 
 /// API: pro/pro_verify
 ///
@@ -160,7 +164,8 @@ LIBSESSION_EXPORT pro_proof pro_proof_from_pro_backend_response(
 /// Outputs:
 /// - `bytes32` -- The 32 byte hash calculated from the proof
 LIBSESSION_EXPORT bool pro_config_verify_signature(
-        pro_config const* pro, uint8_t const* verify_pubkey, size_t verify_pubkey_len);
+        pro_config const* pro, uint8_t const* verify_pubkey, size_t verify_pubkey_len)
+        NON_NULL_ARG(1, 2);
 
 #ifdef __cplusplus
 }  // extern "C"
