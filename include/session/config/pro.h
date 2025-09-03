@@ -135,8 +135,7 @@ LIBSESSION_EXPORT PRO_STATUS pro_proof_status(
         const uint8_t* verify_pubkey,
         size_t verify_pubkey_len,
         uint64_t unix_ts_s,
-        OPTIONAL const pro_signed_message* signed_msg)
-        NON_NULL_ARG(1, 2);
+        OPTIONAL const pro_signed_message* signed_msg) NON_NULL_ARG(1, 2);
 
 /// API: pro/pro_proof_from_pro_backend_response
 ///

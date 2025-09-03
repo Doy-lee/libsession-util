@@ -135,7 +135,7 @@ typedef struct session_protocol_pro_features_for_msg {
 /// - `success` -- True if the message was evaluated successfully for PRO features false otherwise.
 ///   When false, all fields except for `error` should be ignored from the result object.
 /// - `error` -- If `success` is false, this is populated with an error code describing the error,
-//    otherwise it's empty.
+///   otherwise it's empty. This string is read-only and should not be modified.
 /// - `features` -- Session Pro feature flags suitable for writing directly into the protobuf
 ///   `ProMessage` in `Content`
 /// - `codepoint_count` -- Counts the number of unicode codepoints that were in the message.
@@ -158,7 +158,7 @@ session_protocol_pro_features_for_msg session_protocol_pro_features_for_utf8(
 /// - `success` -- True if the message was evaluated successfully for PRO features false otherwise.
 ///   When false, all fields except for `error` should be ignored from the result object.
 /// - `error` -- If `success` is false, this is populated with an error code describing the error,
-//    otherwise it's empty.
+///   otherwise it's empty.
 /// - `features` -- Session Pro feature flags suitable for writing directly into the protobuf
 ///   `ProMessage` in `Content`
 /// - `codepoint_count` -- Counts the number of unicode codepoints that were in the message.

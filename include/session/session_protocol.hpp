@@ -170,7 +170,7 @@ struct ProFeaturesForMsg {
     size_t codepoint_count;
 };
 
-/// API: session_protocol/get_pro_features_for_utf8
+/// API: session_protocol/pro_features_for_utf8
 ///
 /// Determine the Pro features that are used in a given conversation message.
 ///
@@ -184,14 +184,14 @@ struct ProFeaturesForMsg {
 /// - `success` -- True if the message was evaluated successfully for PRO features false otherwise.
 ///   When false, all fields except for `error` should be ignored from the result object.
 /// - `error` -- If `success` is false, this is populated with an error code describing the error,
-//    otherwise it's empty.
+///   otherwise it's empty. This string is read-only and should not be modified.
 /// - `features` -- Session Pro feature flags suitable for writing directly into the protobuf
 ///   `ProMessage` in `Content`
 /// - `codepoint_count` -- Counts the number of unicode codepoints that were in the message.
-ProFeaturesForMsg get_pro_features_for_utf8(
+ProFeaturesForMsg pro_features_for_utf8(
         char const* utf8, size_t utf8_size, PRO_EXTRA_FEATURES flags);
 
-/// API: session_protocol/get_pro_features_for_utf16
+/// API: session_protocol/pro_features_for_utf16
 ///
 /// Determine the Pro features that are used in a given conversation message.
 ///
@@ -205,11 +205,11 @@ ProFeaturesForMsg get_pro_features_for_utf8(
 /// - `success` -- True if the message was evaluated successfully for PRO features false otherwise.
 ///   When false, all fields except for `error` should be ignored from the result object.
 /// - `error` -- If `success` is false, this is populated with an error code describing the error,
-//    otherwise it's empty.
+///   otherwise it's empty. This string is read-only and should not be modified.
 /// - `features` -- Session Pro feature flags suitable for writing directly into the protobuf
 ///   `ProMessage` in `Content`
 /// - `codepoint_count` -- Counts the number of unicode codepoints that were in the message.
-ProFeaturesForMsg get_pro_features_for_utf16(
+ProFeaturesForMsg pro_features_for_utf16(
         char16_t const* utf16, size_t utf8_size, PRO_EXTRA_FEATURES flags);
 
 /// API: session_protocol/encrypt_for_1o1
