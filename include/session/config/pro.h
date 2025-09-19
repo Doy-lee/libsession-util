@@ -28,7 +28,7 @@ typedef struct pro_proof {
     uint8_t version;
     bytes32 gen_index_hash;
     bytes32 rotating_pubkey;
-    uint64_t expiry_unix_ts_s;
+    uint64_t expiry_unix_ts_ms;
     bytes64 sig;
 } pro_proof;
 
@@ -93,21 +93,21 @@ LIBSESSION_EXPORT bool pro_proof_verify_message(
 /// API: pro/pro_proof_is_active
 ///
 /// Check if the Pro proof is currently entitled to Pro given the `unix_ts` with respect to the
-/// proof's `expiry_unix_ts_s`
+/// proof's `expiry_unix_ts_ms`
 ///
 /// Inputs:
 /// - `proof` -- Proof to verify
-/// - `unix_ts_s` -- The unix timestamp in seconds to check the proof expiry time against
+/// - `unix_ts_ms` -- The unix timestamp to check the proof expiry time against
 ///
 /// Outputs:
 /// - `bool` -- True if expired, false otherwise
-LIBSESSION_EXPORT bool pro_proof_is_active(pro_proof const* proof, uint64_t unix_ts_s)
+LIBSESSION_EXPORT bool pro_proof_is_active(pro_proof const* proof, uint64_t unix_ts_ms)
         NON_NULL_ARG(1);
 
 /// API: pro/pro_proof_status
 ///
 /// Evaluate the status of the pro proof by checking it is signed by the `verify_pubkey`, it has
-/// not expired via `unix_ts_s` and optionally verify that the `signed_msg` was signed by the
+/// not expired via `unix_ts_ms` and optionally verify that the `signed_msg` was signed by the
 /// `rotating_pubkey` embedded in the proof.
 ///
 /// Internally this function calls `pro_proof_verify_signature`, `pro_proof_verify_message` and
@@ -121,7 +121,7 @@ LIBSESSION_EXPORT bool pro_proof_is_active(pro_proof const* proof, uint64_t unix
 ///   they are the original signatory of the proof.
 /// - `verify_pubkey_len` -- Length of the `verify_pubkey` should be 32 bytes
 ///   they are the original signatory of the proof.
-/// - `unix_ts` -- Unix timestamp in seconds to compared against the embedded `expiry_unix_ts_s`
+/// - `unix_ts_ms` -- Unix timestamp to compared against the embedded `expiry_unix_ts_ms`
 ///   to determine if the proof has expired or not
 /// - `signed_msg` -- Optionally set the payload to the message with the signature to verify if
 ///   the embedded `rotating_pubkey` in the proof signed the given message.
@@ -134,7 +134,7 @@ LIBSESSION_EXPORT PRO_STATUS pro_proof_status(
         pro_proof const* proof,
         const uint8_t* verify_pubkey,
         size_t verify_pubkey_len,
-        uint64_t unix_ts_s,
+        uint64_t unix_ts_ms,
         OPTIONAL const pro_signed_message* signed_msg) NON_NULL_ARG(1, 2);
 
 /// API: pro/pro_proof_from_pro_backend_response

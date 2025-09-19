@@ -89,8 +89,8 @@ bool proof_verify_message_internal(
     return result;
 }
 
-bool proof_is_active_internal(uint64_t expiry_unix_ts, uint64_t unix_ts_s) {
-    bool result = unix_ts_s <= expiry_unix_ts;
+bool proof_is_active_internal(uint64_t expiry_unix_ts_ms, uint64_t unix_ts_ms) {
+    bool result = unix_ts_ms <= expiry_unix_ts_ms;
     return result;
 }
 }  // namespace
@@ -121,7 +121,7 @@ bool ProProof::verify_message(std::span<const uint8_t> sig, std::span<const uint
     return result;
 }
 
-bool ProProof::is_active(std::chrono::sys_seconds unix_ts) const {
+bool ProProof::is_active(std::chrono::sys_time<std::chrono::milliseconds> unix_ts) const {
     bool result = proof_is_active_internal(
             expiry_unix_ts.time_since_epoch().count(), unix_ts.time_since_epoch().count());
     return result;
@@ -129,7 +129,7 @@ bool ProProof::is_active(std::chrono::sys_seconds unix_ts) const {
 
 ProStatus ProProof::status(
         std::span<const uint8_t> verify_pubkey,
-        std::chrono::sys_seconds unix_ts,
+        std::chrono::sys_time<std::chrono::milliseconds> unix_ts,
         const std::optional<ProSignedMessage>& signed_msg) {
     ProStatus result = ProStatus::Valid;
     // Verify the at the proof is verified by the Session Pro Backend key (e.g.: It was
@@ -238,7 +238,7 @@ LIBSESSION_C_API bytes32 pro_proof_hash(pro_proof const* proof) {
             proof->version,
             proof->gen_index_hash.data,
             proof->rotating_pubkey.data,
-            proof->expiry_unix_ts_s);
+            proof->expiry_unix_ts_ms);
     std::memcpy(result.data, hash.data(), hash.size());
     return result;
 }
@@ -252,7 +252,7 @@ LIBSESSION_C_API bool pro_proof_verify_signature(
             proof->version,
             proof->gen_index_hash.data,
             proof->rotating_pubkey.data,
-            proof->expiry_unix_ts_s);
+            proof->expiry_unix_ts_ms);
     bool result = proof_verify_signature_internal(hash, proof->sig.data, verify_pubkey_span);
     return result;
 }
@@ -269,8 +269,8 @@ LIBSESSION_C_API bool pro_proof_verify_message(
     return result;
 }
 
-LIBSESSION_C_API bool pro_proof_is_active(pro_proof const* proof, uint64_t unix_ts_s) {
-    bool result = proof_is_active_internal(proof->expiry_unix_ts_s, unix_ts_s);
+LIBSESSION_C_API bool pro_proof_is_active(pro_proof const* proof, uint64_t unix_ts_ms) {
+    bool result = proof_is_active_internal(proof->expiry_unix_ts_ms, unix_ts_ms);
     return result;
 }
 
@@ -278,7 +278,7 @@ LIBSESSION_C_API PRO_STATUS pro_proof_status(
         pro_proof const* proof,
         const uint8_t* verify_pubkey,
         size_t verify_pubkey_len,
-        uint64_t unix_ts_s,
+        uint64_t unix_ts_ms,
         const pro_signed_message* signed_msg) {
     PRO_STATUS result = PRO_STATUS_VALID;
     if (!pro_proof_verify_signature(proof, verify_pubkey, verify_pubkey_len))
@@ -296,7 +296,7 @@ LIBSESSION_C_API PRO_STATUS pro_proof_status(
     }
 
     // Check if the proof has expired
-    if (result == PRO_STATUS_VALID && !pro_proof_is_active(proof, unix_ts_s))
+    if (result == PRO_STATUS_VALID && !pro_proof_is_active(proof, unix_ts_ms))
         result = PRO_STATUS_EXPIRED;
     return result;
 }
@@ -307,7 +307,7 @@ LIBSESSION_EXPORT pro_proof pro_proof_from_pro_backend_response(
     result.version = response->version;
     result.gen_index_hash = response->gen_index_hash;
     result.rotating_pubkey = response->rotating_pkey;
-    result.expiry_unix_ts_s = response->expiry_unix_ts_s;
+    result.expiry_unix_ts_ms = response->expiry_unix_ts_ms;
     result.sig = response->sig;
     return result;
 }
@@ -321,7 +321,7 @@ LIBSESSION_C_API bool pro_config_verify_signature(
             pro->proof.version,
             pro->proof.gen_index_hash.data,
             pro->proof.rotating_pubkey.data,
-            pro->proof.expiry_unix_ts_s,
+            pro->proof.expiry_unix_ts_ms,
             pro->proof.sig.data);
     return result;
 }
