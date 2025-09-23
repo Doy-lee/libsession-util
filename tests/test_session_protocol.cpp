@@ -63,7 +63,10 @@ static SerialisedProtobufContentWithProForTesting build_protobuf_content_with_se
             result.proof.gen_index_hash.data(), result.proof.gen_index_hash.size());
     proto_proof->set_rotatingpublickey(
             result.proof.rotating_pubkey.data(), result.proof.rotating_pubkey.size());
-    proto_proof->set_expiryunixts(result.proof.expiry_unix_ts.time_since_epoch().count());
+    proto_proof->set_expiryunixts(
+            std::chrono::duration_cast<std::chrono::seconds>(
+                    result.proof.expiry_unix_ts.time_since_epoch())
+                    .count());
     proto_proof->set_sig(result.proof.sig.data(), result.proof.sig.size());
 
     // Generate the plaintext
@@ -662,7 +665,9 @@ TEST_CASE("Session protocol helpers C API", "[session-protocol][helpers]") {
                     &multi_decrypt_keys,
                     encrypt_result.ciphertext.data,
                     encrypt_result.ciphertext.size,
-                    protobuf_content_with_pro.proof.expiry_unix_ts.time_since_epoch().count(),
+                    std::chrono::duration_cast<std::chrono::seconds>(
+                            protobuf_content_with_pro.proof.expiry_unix_ts.time_since_epoch())
+                            .count(),
                     pro_backend_ed_pk.data(),
                     pro_backend_ed_pk.size(),
                     error,
